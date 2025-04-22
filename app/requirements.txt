@@ -1,0 +1,5 @@
+fastapi
+uvicorn
+mistralai = 1.7.0
+pydantic >= 2.0
+python-dotenv
