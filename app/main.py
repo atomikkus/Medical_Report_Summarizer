@@ -1,8 +1,9 @@
 
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, Query
 from fastapi.responses import JSONResponse
 from pathlib import Path
 import tempfile
+import json
 
 from app.processor import process_pdf_and_generate_summary
 
@@ -22,4 +23,27 @@ async def summarize_pdf(file: UploadFile = File(...)):
         return JSONResponse(status_code=500, content={"error": str(e)})
 
 
-## Add get request for getting the summary of the pdf and the md file and wrap both in a json response
+@app.get("/results/")
+def get_summary_files(filename: str = Query(..., description="Original PDF filename without extension")):
+    try:
+        base_path = Path(filename)
+        md_path = base_path.with_suffix('.md')
+        json_path = base_path.with_name(base_path.stem + '_structured.json')
+
+        if not md_path.exists() or not json_path.exists():
+            return JSONResponse(status_code=404, content={"error": "Files not found."})
+
+        with open(md_path, 'r', encoding='utf-8') as f:
+            markdown_content = f.read()
+
+        with open(json_path, 'r', encoding='utf-8') as f:
+            json_content = json.load(f)
+
+        return JSONResponse(content={
+            "filename": filename,
+            "markdown_summary": markdown_content,
+            "structured_json": json_content
+        })
+
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"error": str(e)})
