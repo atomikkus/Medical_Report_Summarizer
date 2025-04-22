@@ -20,3 +20,6 @@ async def summarize_pdf(file: UploadFile = File(...)):
         return JSONResponse(content=output if output else {"error": "Extraction failed"})
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": str(e)})
+
+
+## Add get request for getting the summary of the pdf and the md file and wrap both in a json response
