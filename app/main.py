@@ -1,14 +1,13 @@
-
 from fastapi import FastAPI, UploadFile, File, Query
 from fastapi.responses import JSONResponse
 from pathlib import Path
 import tempfile
 import json
 
-from processor import process_pdf_and_generate_summary
-
+from app.processor import process_pdf_and_generate_summary
 
 app = FastAPI(title="PET Scan Summarizer API")
+
 
 @app.post("/summarize/")
 async def summarize_pdf(file: UploadFile = File(...)):
@@ -19,7 +18,15 @@ async def summarize_pdf(file: UploadFile = File(...)):
 
         output = process_pdf_and_generate_summary(str(temp_path))
 
-        return JSONResponse(content=output if output else {"error": "Extraction failed"})
+        if not output or "markdown_summary" not in output or "structured_json" not in output:
+            return JSONResponse(status_code=500, content={"error": "Extraction failed or incomplete"})
+
+        return JSONResponse(content={
+            "filename": file.filename,
+            "markdown_summary": output["markdown_summary"],
+            "structured_json": output["structured_json"]
+        })
+
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": str(e)})
 
