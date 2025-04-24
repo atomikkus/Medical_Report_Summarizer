@@ -126,5 +126,10 @@ def process_pdf_and_generate_summary(pdf_path, schema_file_path=None):
     json_output_path = pdf_file.with_name(pdf_file.stem + '_structured.json')
     with open(json_output_path, 'w', encoding='utf-8') as f:
         json.dump(parsed_output, f, indent=4, ensure_ascii=False)
-    print(f"✅ Structured JSON saved to: {json_output_path}")
+        # At the end of process_pdf_and_generate_summary
+    return {
+        "markdown_summary": full_markdown or "❌ No markdown content extracted.",
+        "structured_json": parsed_output or {}
+    }
+
 
