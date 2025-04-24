@@ -5,7 +5,8 @@ from pathlib import Path
 import tempfile
 import json
 
-from app.processor import process_pdf_and_generate_summary
+from processor import process_pdf_and_generate_summary
+
 
 app = FastAPI(title="PET Scan Summarizer API")
 
